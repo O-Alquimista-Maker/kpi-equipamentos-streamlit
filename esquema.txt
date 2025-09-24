@@ -1,0 +1,13 @@
+kpi_equipamentos/
+|
+├── app.py                # Arquivo principal da aplicação Streamlit
+|
+├── database/
+│   ├── __init__.py       # Torna o diretório 'database' um módulo Python
+│   └── connection.py     # Módulo para gerenciar a conexão com o BD
+│   └── setup.py          # Módulo para criar as tabelas (setup inicial)
+|
+├── pages/
+│   └── __init__.py       # Necessário para o Streamlit reconhecer como um pacote de páginas
+|
+└── requirements.txt      # Lista de bibliotecas Python

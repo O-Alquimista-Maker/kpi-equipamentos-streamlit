@@ -1,0 +1,17 @@
+# Ambiente Virtual
+venv/
+.venv/
+
+# Cache do Python
+__pycache__/
+*.pyc
+
+# Banco de dados SQLite
+*.db
+*.db-journal
+
+# Arquivos do Streamlit
+.streamlit/
+
+# Arquivos do VS Code
+.vscode/

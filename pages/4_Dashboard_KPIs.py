@@ -53,12 +53,8 @@ with col_data2:
 
 with col_sistema:
     sistemas_unicos = sorted(df_equipamentos_original['sistema_alocado'].dropna().unique())
-    
-    # Inicializa o estado da sessão para o filtro
     if 'sistemas_selecionados' not in st.session_state:
         st.session_state.sistemas_selecionados = sistemas_unicos
-
-    # Botões para controle rápido
     botoes_col1, botoes_col2 = st.columns(2)
     if botoes_col1.button("Selecionar Todos", use_container_width=True):
         st.session_state.sistemas_selecionados = sistemas_unicos
@@ -66,8 +62,6 @@ with col_sistema:
     if botoes_col2.button("Limpar Seleção", use_container_width=True):
         st.session_state.sistemas_selecionados = []
         st.rerun()
-
-    # O multiselect usa 'key' e não 'default' para seguir as melhores práticas
     sistemas_selecionados = st.multiselect(
         "Filtrar por Sistema:",
         options=sistemas_unicos,
@@ -83,43 +77,53 @@ df_equipamentos_filtrado_data = df_equipamentos_original[(df_equipamentos_origin
 df_manutencoes = df_manutencoes_filtrado_data[df_manutencoes_filtrado_data['sistema_alocado'].isin(sistemas_selecionados)]
 df_equipamentos = df_equipamentos_filtrado_data[df_equipamentos_filtrado_data['sistema_alocado'].isin(sistemas_selecionados)]
 
+# --- SEÇÃO DE EXPORTAÇÃO DE DADOS ---
+st.sidebar.header("Opções de Exportação")
+
+df_export = df_manutencoes.rename(columns={
+    'data_manutencao': 'Data', 'equipamento_descricao': 'Equipamento', 'numero_serie': 'Nº de Série',
+    'sistema_alocado': 'Sistema', 'tipo_manutencao': 'Tipo', 'motivo_manutencao': 'Motivo', 'custo_manutencao': 'Custo (R$)'
+})
+colunas_export = ['Data', 'Equipamento', 'Nº de Série', 'Sistema', 'Tipo', 'Motivo', 'Custo (R$)']
+df_export = df_export[colunas_export]
+
+csv = df_export.to_csv(index=False, sep=';', decimal=',').encode('utf-8-sig')
+
+st.sidebar.download_button(
+   label="📥 Baixar Dados Filtrados (CSV)",
+   data=csv,
+   file_name=f"relatorio_manutencoes_{datetime.date.today()}.csv",
+   mime="text/csv",
+   use_container_width=True,
+   disabled=df_manutencoes.empty
+)
+
 st.markdown("---")
 
 # --- Visão Geral com Novas Métricas ---
 st.header("Visão Geral (Filtro Aplicado)")
 
-# KPIs Financeiros
 custo_aquisicao_periodo = df_equipamentos['custo_aquisicao'].sum()
 custo_manutencao_periodo = df_manutencoes['custo_manutencao'].sum()
 tco_periodo = custo_aquisicao_periodo + custo_manutencao_periodo
 
-# KPIs Operacionais de Status
 equipamentos_por_sistema = df_equipamentos_original[df_equipamentos_original['sistema_alocado'].isin(sistemas_selecionados)]
 status_counts = equipamentos_por_sistema['status'].value_counts()
-
-# Convertendo os valores de numpy.int64 para int nativo do Python
 operacionais = int(status_counts.get('Operacional', 0))
 em_manutencao = int(status_counts.get('Em Manutenção', 0))
 desativados = int(status_counts.get('Desativado', 0))
 
-# Layout das Métricas
 st.subheader("Análise Financeira")
 col1, col2, col3 = st.columns(3)
-with col1:
-    st.metric(label="Custo de Aquisição (Período)", value=f"R$ {custo_aquisicao_periodo:,.2f}")
-with col2:
-    st.metric(label="Custo de Manutenção (Período)", value=f"R$ {custo_manutencao_periodo:,.2f}")
-with col3:
-    st.metric(label="Custo Total (TCO) no Período", value=f"R$ {tco_periodo:,.2f}")
+with col1: st.metric(label="Custo de Aquisição (Período)", value=f"R$ {custo_aquisicao_periodo:,.2f}")
+with col2: st.metric(label="Custo de Manutenção (Período)", value=f"R$ {custo_manutencao_periodo:,.2f}")
+with col3: st.metric(label="Custo Total (TCO) no Período", value=f"R$ {tco_periodo:,.2f}")
 
 st.subheader("Análise Operacional de Status (Sistemas Selecionados)")
 col4, col5, col6 = st.columns(3)
-with col4:
-    st.metric(label="Equipamentos Operacionais", value=operacionais)
-with col5:
-    st.metric(label="Equipamentos Em Manutenção", value=em_manutencao, delta=em_manutencao if em_manutencao > 0 else None, delta_color="inverse")
-with col6:
-    st.metric(label="Equipamentos Desativados", value=desativados)
+with col4: st.metric(label="Equipamentos Operacionais", value=operacionais)
+with col5: st.metric(label="Equipamentos Em Manutenção", value=em_manutencao, delta=em_manutencao if em_manutencao > 0 else None, delta_color="inverse")
+with col6: st.metric(label="Equipamentos Desativados", value=desativados)
 
 st.markdown("---")
 
@@ -127,10 +131,8 @@ st.markdown("---")
 if df_equipamentos_original.empty:
     st.warning("⚠️ Nenhum equipamento registrado no sistema. Cadastre um equipamento para começar.")
 else:
-    # --- Seção de Análise Operacional ---
     st.header("Análise Operacional")
     op_col1, op_col2 = st.columns(2)
-
     with op_col1:
         st.subheader("Distribuição de Status dos Ativos")
         status_df = status_counts.reset_index()
@@ -138,7 +140,6 @@ else:
         fig_status = px.pie(status_df, names='status', values='contagem', title='Status dos Equipamentos (Sistemas Selecionados)', hole=0.4, color_discrete_map={'Operacional': '#00CC96', 'Em Manutenção': '#FFA15A', 'Desativado': '#AB63FA'})
         fig_status.update_traces(textinfo='percent+label', textposition='outside')
         st.plotly_chart(fig_status, use_container_width=True)
-
     with op_col2:
         st.subheader("Tendência de Manutenções no Período")
         if not df_manutencoes.empty:
@@ -151,13 +152,9 @@ else:
             st.plotly_chart(fig_tendencia, use_container_width=True)
         else:
             st.info("Nenhuma manutenção no período para exibir tendência.")
-
     st.markdown("---")
-
-    # --- Seção de Análise Financeira ---
     st.header("Análise Financeira Detalhada")
     fin_col1, fin_col2 = st.columns(2)
-
     with fin_col1:
         st.subheader("Custo Total de Propriedade (Geral)")
         custo_aq_agregado = df_equipamentos_original.groupby('descricao')['custo_aquisicao'].sum().reset_index().rename(columns={'custo_aquisicao': 'Custo Aquisição'})
@@ -168,7 +165,6 @@ else:
         df_tco_melted = df_tco.melt(id_vars='descricao', value_vars=['Custo Aquisição', 'Custo Manutenção'], var_name='Tipo de Custo', value_name='Custo')
         fig_tco = px.bar(df_tco_melted, x='descricao', y='Custo', color='Tipo de Custo', title='TCO por Equipamento', barmode='stack', color_discrete_map={'Custo Aquisição': '#00CC96', 'Custo Manutenção': '#EF553B'})
         st.plotly_chart(fig_tco, use_container_width=True)
-
     with fin_col2:
         st.subheader("Custos de Manutenção no Período")
         if not df_manutencoes.empty:

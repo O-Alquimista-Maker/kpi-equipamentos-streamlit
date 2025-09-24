@@ -5,11 +5,12 @@ import pandas as pd
 from database.database_manager import listar_equipamentos_df, listar_manutencoes_df
 import datetime
 
-# --- Configuração e Carregamento de Dados (sem alterações) ---
+# --- Configuração da Página ---
 st.set_page_config(page_title="Detalhes do Equipamento", page_icon="🔬", layout="wide")
 st.title("🔬 Dossiê do Equipamento")
 st.markdown("---")
 
+# --- Carregamento de Dados ---
 @st.cache_data
 def carregar_dados():
     equipamentos = listar_equipamentos_df()
@@ -24,7 +25,7 @@ def carregar_dados():
 
 df_equipamentos, df_manutencoes = carregar_dados()
 
-# --- Widget de Seleção (sem alterações) ---
+# --- Widget de Seleção ---
 if df_equipamentos.empty:
     st.warning("Nenhum equipamento cadastrado para exibir detalhes.")
 else:
@@ -40,7 +41,6 @@ else:
     if equipamento_selecionado_display:
         equip_info = df_equipamentos[df_equipamentos['display_name'] == equipamento_selecionado_display].iloc[0]
 
-        # --- Seção de Informações Gerais (sem alterações) ---
         st.header(f"Informações Gerais: {equip_info['descricao']}")
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -53,26 +53,18 @@ else:
             st.markdown(f"**Status Atual:** {equip_info['status']}")
             st.markdown(f"**Nº de Série:** {equip_info['numero_serie']}")
 
-        # --- Seção de Garantia (COM A CORREÇÃO) ---
         st.subheader("Status da Garantia")
-        
-        # --- CORREÇÃO APLICADA AQUI ---
-        # Usamos pd.Timestamp('today').normalize() que é a forma correta do Pandas
-        # para obter a data de hoje com a hora zerada, garantindo a comparação correta.
         hoje = pd.Timestamp('today').normalize()
         fim_garantia = equip_info['fim_garantia']
-        
         if pd.isna(fim_garantia):
             st.warning("Data de fim de garantia não informada.")
         else:
-            # A subtração entre dois Timestamps do Pandas já resulta em um objeto 'Timedelta'
             dias_restantes = (fim_garantia - hoje).days
             if dias_restantes >= 0:
                 st.success(f"✔️ Em garantia. Expira em {dias_restantes} dias ({fim_garantia.strftime('%d/%m/%Y')}).")
             else:
                 st.error(f"❌ Garantia expirada há {-dias_restantes} dias ({fim_garantia.strftime('%d/%m/%Y')}).")
 
-        # --- Seção de Histórico de Manutenções (sem alterações) ---
         st.header("Histórico e Custos de Manutenção")
         manutencoes_do_equip = df_manutencoes[df_manutencoes['numero_serie'] == equip_info['numero_serie']]
         
@@ -82,14 +74,28 @@ else:
             custo_total_manutencao = manutencoes_do_equip['custo_manutencao'].sum()
             num_manutencoes = len(manutencoes_do_equip)
             
-            m_col1, m_col2 = st.columns(2)
+            m_col1, m_col2, m_col3 = st.columns([2, 2, 1])
             m_col1.metric("Custo Total de Manutenção", f"R$ {custo_total_manutencao:,.2f}")
-            m_col2.metric("Número de Manutenções Registradas", num_manutencoes)
+            m_col2.metric("Número de Manutenções", num_manutencoes)
+
+            with m_col3:
+                df_hist_export = manutencoes_do_equip[['data_manutencao', 'tipo_manutencao', 'motivo_manutencao', 'custo_manutencao']].rename(columns={
+                    'data_manutencao': 'Data', 'tipo_manutencao': 'Tipo', 'motivo_manutencao': 'Motivo', 'custo_manutencao': 'Custo (R$)'
+                })
+                csv_hist = df_hist_export.to_csv(index=False, sep=';', decimal=',').encode('utf-8-sig')
+                st.write("") 
+                st.download_button(
+                    label="📥 Baixar Histórico",
+                    data=csv_hist,
+                    file_name=f"historico_{equip_info['numero_serie']}.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
 
             st.dataframe(
                 manutencoes_do_equip[['data_manutencao', 'tipo_manutencao', 'motivo_manutencao', 'custo_manutencao']],
                 hide_index=True,
-                width='stretch', # Corrigido para a nova sintaxe
+                width='stretch',
                 column_config={
                     "data_manutencao": st.column_config.DateColumn("Data", format="DD/MM/YYYY"),
                     "tipo_manutencao": "Tipo",

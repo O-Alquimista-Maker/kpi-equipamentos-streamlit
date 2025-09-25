@@ -4,9 +4,14 @@ import streamlit as st
 from database.database_manager import adicionar_equipamento
 import datetime
 
-st.set_page_config(page_title="Cadastro de Equipamentos", page_icon="📠")
-st.title("📠 Cadastro de Novos Equipamentos")
-st.markdown("---")
+# --- Configuração da Página ---
+st.set_page_config(
+    page_title="Cadastro de Equipamento",
+    page_icon="🔬", # MUDANÇA AQUI
+    layout="wide"
+)
+
+st.title("🔬 Cadastro de Novo Equipamento") # MUDANÇA AQUI
 
 with st.form("cadastro_equipamento_form", clear_on_submit=True):
     col1, col2 = st.columns(2)

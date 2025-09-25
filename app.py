@@ -2,34 +2,59 @@
 
 import streamlit as st
 
+# --- Configuração da Página ---
+# Define o título da aba, o ícone e o layout da página.
+# Este deve ser o primeiro comando Streamlit no seu script.
+# No topo do arquivo
 st.set_page_config(
-    page_title="Home | KPI de Equipamentos",
-    page_icon="📈",
+    page_title="KPI Equipamentos - Início",
+    page_icon="🏠",  # MUDANÇA AQUI: de 📈 para 🏠
     layout="wide"
 )
 
-st.title("📈 Sistema de Gestão de KPIs para Equipamentos Analíticos")
+# --- Conteúdo da Página Principal ---
+
+# Título principal da aplicação
+st.title("📈 Plataforma de KPI de Equipamentos Analíticos")
 st.markdown("---")
 
-st.markdown("Bem-vindo! Esta ferramenta foi desenvolvida para centralizar e analisar informações sobre o ciclo de vida de equipamentos analíticos.")
+# Mensagem de boas-vindas e descrição do projeto
+st.header("Bem-vindo(a) à plataforma central de gestão de ativos.")
+st.write("""
+Esta aplicação foi desenvolvida para centralizar e analisar os dados de equipamentos analíticos, 
+desde a aquisição até a manutenção, fornecendo indicadores chave de desempenho (KPIs) 
+para otimizar a gestão e os custos operacionais.
+""")
 
-st.header("Funcionalidades Principais")
+st.info("Selecione uma página na barra lateral à esquerda para começar a navegar.")
+
+st.subheader("Funcionalidades Disponíveis:")
+
+# Usando colunas para descrever as funcionalidades de forma organizada
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("📠 Cadastro e Visualização")
-    st.markdown("""
-        - **Cadastro de Equipamentos:** Registre novos equipamentos e seus custos de aquisição.
-        - **Visualização de Equipamentos:** Veja e filtre a lista de ativos.
-        - **Cadastro de Manutenções:** Registre eventos de manutenção para cada equipamento.
-    """)
+    with st.container(border=True):
+        st.markdown("##### 📝 Cadastros")
+        st.write("""
+        - **Cadastro de Equipamento:** Adicione novos ativos ao sistema.
+        - **Cadastro de Manutenção:** Registre eventos de manutenção corretiva ou preventiva.
+        """)
+
+    with st.container(border=True):
+        st.markdown("##### 🗂️ Gerenciamento")
+        st.write("""
+        - **Gerenciar Dados:** Edite ou exclua registros de equipamentos e manutenções de forma segura e controlada.
+        """)
 
 with col2:
-    st.subheader("🚀 Dashboards de KPIs")
-    st.markdown("""
-        - **Visão Geral Financeira:** Métricas de custo total de aquisição, manutenção e TCO.
-        - **Análise de Custos:** Visualize os custos de manutenção por equipamento ou por sistema.
-        - **(Em breve) Análise de Tipos de Manutenção:** Compare custos de manutenções corretivas vs. preventivas.
-    """)
+    with st.container(border=True):
+        st.markdown("##### 📊 Análise e KPIs")
+        st.write("""
+        - **Dashboard de KPIs:** Visualize os principais indicadores de custo, status e operação em um painel interativo.
+        - **Detalhes do Equipamento:** Consulte um dossiê completo de qualquer ativo, incluindo seu histórico de manutenções e status de garantia.
+        """)
 
-st.info("Use o menu na barra lateral para navegar entre as páginas.")
+st.markdown("---")
+st.caption("Desenvolvido por 🧙‍♂️ Fabio Sena 🧙‍♂️ | Versão 1.1")
+

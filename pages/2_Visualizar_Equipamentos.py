@@ -4,8 +4,9 @@ import streamlit as st
 import pandas as pd
 from database.database_manager import listar_equipamentos_df
 
-st.set_page_config(page_title="Visualizar Equipamentos", page_icon="📊", layout="wide")
-st.title("📊 Painel de Equipamentos Cadastrados")
+# --- Configuração da Página ---
+st.set_page_config(page_title="Visualizar Equipamentos", page_icon="👉", layout="wide")
+st.title("👉 Painel de Equipamentos Cadastrados")
 st.markdown("---")
 
 @st.cache_data

@@ -9,9 +9,13 @@ from database.database_manager import (
 import datetime
 
 # --- Configuração da Página ---
-st.set_page_config(page_title="Gerenciar Dados", page_icon="🗂️", layout="wide")
-st.title("🗂️ Gerenciamento de Dados do Sistema")
-st.markdown("---")
+st.set_page_config(
+    page_title="Gerenciar Dados",
+    page_icon="🗃️", # MUDANÇA AQUI: de 🗂️ para 🗃️ (um pouco diferente)
+    layout="wide"
+)
+
+st.title("🗃️ Gerenciamento de Dados do Sistema") # MUDANÇA AQUI
 
 # --- Inicialização do Session State ---
 # Para edição

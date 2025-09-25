@@ -6,9 +6,13 @@ from database.database_manager import listar_equipamentos_df, listar_manutencoes
 import datetime
 
 # --- Configuração da Página ---
-st.set_page_config(page_title="Detalhes do Equipamento", page_icon="🔬", layout="wide")
-st.title("🔬 Dossiê do Equipamento")
-st.markdown("---")
+st.set_page_config(
+    page_title="Detalhes do Equipamento",
+    page_icon="🔎", # MUDANÇA AQUI: de 🔬 para 🔎
+    layout="wide"
+)
+
+st.title("🔎 Dossiê do Equipamento") # MUDANÇA AQUI
 
 # --- Carregamento de Dados ---
 @st.cache_data

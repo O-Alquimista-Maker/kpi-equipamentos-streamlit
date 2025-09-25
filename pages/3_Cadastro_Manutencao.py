@@ -5,9 +5,14 @@ import pandas as pd
 from database.database_manager import adicionar_manutencao, listar_equipamentos_df
 import datetime
 
-st.set_page_config(page_title="Registrar Manutenção", page_icon="🛠️")
-st.title("🛠️ Registro de Nova Manutenção")
-st.markdown("---")
+# --- Configuração da Página ---
+st.set_page_config(
+    page_title="Cadastro de Manutenção",
+    page_icon="🛠️", # MUDANÇA AQUI
+    layout="wide"
+)
+
+st.title("🛠️ Registro de Manutenção") # MUDANÇA AQUI
 
 @st.cache_data
 def carregar_equipamentos():

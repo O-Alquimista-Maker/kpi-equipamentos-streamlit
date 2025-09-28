@@ -1,53 +1,44 @@
-# kpi_equipamentos/database/setup.py
+# database/setup.py
 
-from database.connection import get_db_connection
+from .connection import get_db_connection
+from sqlalchemy import text
 
-def create_tables():
-    """
-    Cria as tabelas 'equipamentos' e 'manutencoes' no banco de dados
-    se elas ainda não existirem.
-    """
+def criar_tabelas():
+    """Cria as tabelas 'equipamentos' e 'manutencoes' no banco de dados usando SQLAlchemy."""
     conn = get_db_connection()
     if conn is None:
-        print("Não foi possível criar as tabelas: falha na conexão com o banco de dados.")
+        print("Não foi possível conectar ao banco de dados para criar as tabelas.")
         return
 
     try:
-        cursor = conn.cursor()
-
-        # Definição da tabela de equipamentos, incluindo custo_aquisicao
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS equipamentos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                numero_serie TEXT NOT NULL UNIQUE,
-                descricao TEXT NOT NULL,
-                modelo TEXT,
-                sistema_alocado TEXT,
-                custo_aquisicao REAL,
-                data_aquisicao DATE,
-                pedido_compra TEXT,
-                motivo_compra TEXT,
-                inicio_garantia DATE,
-                fim_garantia DATE,
-                status TEXT DEFAULT 'Operacional'
-            );
-        """)
-
-        # Definição da tabela de manutenções
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS manutencoes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                equipamento_id INTEGER NOT NULL,
-                data_manutencao DATE NOT NULL,
-                motivo_manutencao TEXT,
-                tipo_manutencao TEXT,
-                custo_manutencao REAL,
-                FOREIGN KEY (equipamento_id) REFERENCES equipamentos (id)
-            );
-        """)
-
-        conn.commit()
-        print("Tabelas verificadas/criadas com sucesso.")
+        with conn.begin() as transaction:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS equipamentos (
+                    id SERIAL PRIMARY KEY,
+                    numero_serie VARCHAR(100) UNIQUE NOT NULL,
+                    descricao VARCHAR(255) NOT NULL,
+                    modelo VARCHAR(100),
+                    status VARCHAR(50),
+                    sistema_alocado VARCHAR(100),
+                    data_aquisicao DATE,
+                    custo_aquisicao NUMERIC(10, 2),
+                    inicio_garantia DATE,
+                    fim_garantia DATE,
+                    pedido_compra VARCHAR(100)  -- GARANTIR QUE ESTA LINHA ESTÁ AQUI
+                );
+            """))
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS manutencoes (
+                    id SERIAL PRIMARY KEY,
+                    equipamento_id INTEGER NOT NULL,
+                    data_manutencao DATE NOT NULL,
+                    tipo_manutencao VARCHAR(50) NOT NULL,
+                    motivo_manutencao TEXT,
+                    custo_manutencao NUMERIC(10, 2),
+                    FOREIGN KEY (equipamento_id) REFERENCES equipamentos (id) ON DELETE CASCADE
+                );
+            """))
+        print("Tabelas 'equipamentos' e 'manutencoes' verificadas/criadas com sucesso no PostgreSQL.")
     except Exception as e:
         print(f"Ocorreu um erro ao criar as tabelas: {e}")
     finally:
@@ -55,4 +46,4 @@ def create_tables():
             conn.close()
 
 if __name__ == '__main__':
-    create_tables()
+    criar_tabelas()

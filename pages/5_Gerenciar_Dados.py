@@ -7,13 +7,28 @@ from database.database_manager import (
     listar_equipamentos_df, excluir_equipamento, atualizar_equipamento
 )
 import datetime
+from PIL import Image # Importa a biblioteca de manipulação de imagem
 
 # --- Configuração da Página ---
+# Define o título da aba, o ícone e o layout da página.
+# Este deve ser o primeiro comando Streamlit no seu script.
+# No topo do arquivo
 st.set_page_config(
-    page_title="Gerenciar Dados",
-    page_icon="🗃️", # MUDANÇA AQUI: de 🗂️ para 🗃️ (um pouco diferente)
+    page_title="KPI Equipamentos - Início",
+    page_icon="🏠",  # MUDANÇA AQUI: de 📈 para 🏠
     layout="wide"
 )
+# Adiciona o logo no topo da barra lateral
+
+try:
+    logo = Image.open("assets/logo.png")
+    # --- CORREÇÃO APLICADA AQUI ---
+    st.sidebar.image(logo, width='stretch') # Trocamos 'use_column_width' por 'use_container_width'
+except FileNotFoundError:
+    st.sidebar.error("Logo não encontrado. Verifique o caminho do arquivo 'assets/logo.png'.")
+
+st.sidebar.markdown("---")
+st.sidebar.header("Navegação")
 
 st.title("🗃️ Gerenciamento de Dados do Sistema") # MUDANÇA AQUI
 
@@ -72,11 +87,11 @@ def dialog_confirm_delete(entity_type: str, item_id: int):
         st.error("Excluir um equipamento também removerá **todo o seu histórico de manutenções** permanentemente.")
     
     col1, col2 = st.columns(2)
-    if col1.button("Cancelar", use_container_width=True):
+    if col1.button("Cancelar", width='stretch'):
         st.session_state.deleting_item_id = None
         st.rerun()
     
-    if col2.button("Confirmar Exclusão", type="primary", use_container_width=True):
+    if col2.button("Confirmar Exclusão", type="primary", width='stretch'):
         success = False
         if entity_type == 'manutenção':
             success = excluir_manutencao(item_id)

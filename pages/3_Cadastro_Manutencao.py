@@ -5,6 +5,29 @@ import pandas as pd
 from database.database_manager import adicionar_manutencao, listar_equipamentos_df
 import datetime
 
+from PIL import Image # Importa a biblioteca de manipulação de imagem
+
+# --- Configuração da Página ---
+# Define o título da aba, o ícone e o layout da página.
+# Este deve ser o primeiro comando Streamlit no seu script.
+# No topo do arquivo
+st.set_page_config(
+    page_title="KPI Equipamentos - Início",
+    page_icon="🏠",  # MUDANÇA AQUI: de 📈 para 🏠
+    layout="wide"
+)
+# Adiciona o logo no topo da barra lateral
+
+try:
+    logo = Image.open("assets/logo.png")
+    # --- CORREÇÃO APLICADA AQUI ---
+    st.sidebar.image(logo, width='stretch') # Trocamos 'use_column_width' por 'use_container_width'
+except FileNotFoundError:
+    st.sidebar.error("Logo não encontrado. Verifique o caminho do arquivo 'assets/logo.png'.")
+
+st.sidebar.markdown("---")
+st.sidebar.header("Navegação")
+
 # --- Configuração da Página ---
 st.set_page_config(
     page_title="Cadastro de Manutenção",

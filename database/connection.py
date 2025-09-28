@@ -1,24 +1,45 @@
-# kpi_equipamentos/database/connection.py
+# database/connection.py
 
-import sqlite3
-from sqlite3 import Connection
+from sqlalchemy import create_engine
+from sqlalchemy.exc import SQLAlchemyError
 
-DATABASE_FILE = "kpi_data.db"
+# --- Detalhes da Conexão com o PostgreSQL ---
+DB_USER = "postgres"
+DB_PASS = "purplebelt2025"  # A senha que você definiu!
+DB_HOST = "localhost"
+DB_PORT = "5432"
+DB_NAME = "kpi_equipamentos_db"
 
-def get_db_connection() -> Connection | None:
+# String de Conexão (DSN - Data Source Name) no formato do SQLAlchemy
+# Formato: "postgresql+psycopg2://usuario:senha@host:porta/banco"
+DATABASE_URL = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+# Cria um "motor" de conexão que pode ser usado em toda a aplicação
+# O pool_pre_ping verifica se a conexão ainda está viva antes de usá-la
+try:
+    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+except Exception as e:
+    print(f"Erro ao criar o motor do SQLAlchemy: {e}")
+    engine = None
+
+def get_db_connection():
     """
-    Estabelece e retorna uma conexão com o banco de dados SQLite.
-    Adiciona um timeout para evitar erros de 'database is locked'.
-
-    Returns:
-        Connection | None: Um objeto de conexão ou None se a conexão falhar.
+    Retorna uma nova conexão do pool de conexões do motor SQLAlchemy.
+    O Pandas prefere usar o 'engine' diretamente, mas manteremos esta função
+    para operações que não usam Pandas, como INSERT, UPDATE, DELETE.
     """
-    try:
-        # O timeout=10 diz para a conexão esperar até 10s se o BD estiver ocupado.
-        conn = sqlite3.connect(DATABASE_FILE, timeout=10)
-        # Configura a conexão para retornar linhas como dicionários (mais fácil de usar).
-        conn.row_factory = sqlite3.Row
-        return conn
-    except Exception as e:
-        print(f"Erro ao conectar ao banco de dados: {e}")
+    if engine is None:
         return None
+    try:
+        # O engine gerencia um "pool" de conexões. Pegamos uma emprestada.
+        conn = engine.connect()
+        return conn
+    except SQLAlchemyError as e:
+        print(f"Erro ao obter conexão do pool do SQLAlchemy: {e}")
+        return None
+
+# Para o Pandas, é melhor passar o 'engine' diretamente.
+# Vamos disponibilizar o engine para ser importado por outros módulos.
+def get_engine():
+    """Retorna a instância do motor SQLAlchemy."""
+    return engine

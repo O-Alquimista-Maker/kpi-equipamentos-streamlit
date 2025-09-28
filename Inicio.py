@@ -1,6 +1,7 @@
 # kpi_equipamentos/app.py
 
 import streamlit as st
+from PIL import Image # Importa a biblioteca de manipulação de imagem
 
 # --- Configuração da Página ---
 # Define o título da aba, o ícone e o layout da página.
@@ -11,6 +12,17 @@ st.set_page_config(
     page_icon="🏠",  # MUDANÇA AQUI: de 📈 para 🏠
     layout="wide"
 )
+# Adiciona o logo no topo da barra lateral
+
+try:
+    logo = Image.open("assets/logo.png")
+    # --- CORREÇÃO APLICADA AQUI ---
+    st.sidebar.image(logo, width='stretch') # Trocamos 'use_column_width' por 'use_container_width'
+except FileNotFoundError:
+    st.sidebar.error("Logo não encontrado. Verifique o caminho do arquivo 'assets/logo.png'.")
+
+st.sidebar.markdown("---")
+st.sidebar.header("Navegação")
 
 # --- Conteúdo da Página Principal ---
 

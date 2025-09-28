@@ -68,5 +68,16 @@ with col2:
         """)
 
 st.markdown("---")
+
+# ... (todo o código da sua página de início) ...
+
+st.sidebar.markdown("---")
+if st.sidebar.button("🔄 Recarregar Dados"):
+    # Limpa o cache de todas as funções que usam @st.cache_data
+    st.cache_data.clear()
+    st.toast("Dados recarregados com sucesso!", icon="✅")
+    # O st.rerun() é opcional, mas força a página a recarregar imediatamente
+    st.rerun()
+
 st.caption("Desenvolvido por 🧙‍♂️ Fabio Sena 🧙‍♂️ | Versão 1.1")
 

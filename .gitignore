@@ -15,3 +15,5 @@ __pycache__/
 
 # Arquivos do VS Code
 .vscode/
+#arquivos do secrets
+secrets.toml

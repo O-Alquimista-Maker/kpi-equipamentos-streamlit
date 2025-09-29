@@ -5,6 +5,14 @@ from database.database_manager import adicionar_equipamento
 from PIL import Image
 import datetime
 
+# ==============================================================================
+# --- VERIFICADOR DE AUTENTICAÇÃO (ADICIONAR EM TODAS AS PÁGINAS) ---
+# ==============================================================================
+if st.session_state.get("password_correct", False) == False:
+    st.error("Você não tem permissão para acessar esta página. Por favor, faça o login.")
+    st.stop()
+# ==============================================================================
+
 # --- Configuração da Página ---
 try:
     favicon = Image.open("assets/seu_logo.png")

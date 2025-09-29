@@ -6,6 +6,14 @@ from database.database_manager import listar_equipamentos_df, listar_manutencoes
 import datetime
 from PIL import Image # Importa a biblioteca de manipulação de imagem
 
+# ==============================================================================
+# --- VERIFICADOR DE AUTENTICAÇÃO (ADICIONAR EM TODAS AS PÁGINAS) ---
+# ==============================================================================
+if st.session_state.get("password_correct", False) == False:
+    st.error("Você não tem permissão para acessar esta página. Por favor, faça o login.")
+    st.stop()
+# ==============================================================================
+
 # --- Configuração da Página ---
 # Define o título da aba, o ícone e o layout da página.
 # Este deve ser o primeiro comando Streamlit no seu script.

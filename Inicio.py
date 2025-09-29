@@ -1,36 +1,76 @@
-# kpi_equipamentos/app.py
+# kpi_equipamentos/Início.py
 
 import streamlit as st
-from PIL import Image # Importa a biblioteca de manipulação de imagem
+from PIL import Image
+
+# ==============================================================================
+# --- LÓGICA DE AUTENTICAÇÃO (ADICIONADA AQUI) ---
+# ==============================================================================
+
+def check_password():
+    """Retorna True se a senha estiver correta, False caso contrário."""
+    try:
+        # Pega a senha do formulário
+        password = st.session_state["password"]
+        
+        # Compara com a senha mestra guardada nos segredos
+        if password == st.secrets["app_auth"]["master_password"]:
+            st.session_state["password_correct"] = True
+            # Deleta a senha da memória da sessão por segurança
+            del st.session_state["password"]
+        else:
+            st.session_state["password_correct"] = False
+    except KeyError:
+        # Isso acontece se a seção 'app_auth' ou 'master_password' não estiver nos segredos
+        st.session_state["password_correct"] = False
+
+# Se a senha ainda não foi verificada, mostra o formulário de login
+if "password_correct" not in st.session_state or not st.session_state["password_correct"]:
+    # Usa uma configuração de página simples para a tela de login
+    st.set_page_config(page_title="Login", layout="centered")
+    st.title("🔐 Acesso Restrito")
+    st.write("Esta aplicação é protegida. Por favor, insira a senha de acesso.")
+    
+    st.text_input(
+        "Senha:", 
+        type="password", 
+        on_change=check_password, 
+        key="password"
+    )
+    
+    # Mostra mensagem de erro se a tentativa falhou
+    if "password_correct" in st.session_state and not st.session_state["password_correct"]:
+        st.error("Senha incorreta. Tente novamente.")
+    
+    # Para a execução do script aqui, não mostrando o resto da página
+    st.stop()
+
+# --- SE A SENHA ESTIVER CORRETA, A APLICAÇÃO CONTINUA DAQUI PARA BAIXO ---
+# ==============================================================================
+# --- SEU CÓDIGO ORIGINAL COMEÇA AQUI (SEM MODIFICAÇÕES) ---
+# ==============================================================================
 
 # --- Configuração da Página ---
-# Define o título da aba, o ícone e o layout da página.
-# Este deve ser o primeiro comando Streamlit no seu script.
-# No topo do arquivo
 st.set_page_config(
     page_title="KPI Equipamentos - Início",
-    page_icon="🏠",  # MUDANÇA AQUI: de 📈 para 🏠
+    page_icon="🏠",
     layout="wide"
 )
-# Adiciona o logo no topo da barra lateral
 
+# Adiciona o logo no topo da barra lateral
 try:
     logo = Image.open("assets/logo.png")
-    # --- CORREÇÃO APLICADA AQUI ---
-    st.sidebar.image(logo, width='stretch') # Trocamos 'use_column_width' por 'use_container_width'
+    st.sidebar.image(logo, width='stretch') # Corrigido para o parâmetro mais recente
 except FileNotFoundError:
-    st.sidebar.error("Logo não encontrado. Verifique o caminho do arquivo 'assets/logo.png'.")
+    st.sidebar.error("Logo não encontrado. Verifique o caminho 'assets/logo.png'.")
 
 st.sidebar.markdown("---")
 st.sidebar.header("Navegação")
 
 # --- Conteúdo da Página Principal ---
-
-# Título principal da aplicação
 st.title("📈 Plataforma de KPI de Equipamentos Analíticos")
 st.markdown("---")
 
-# Mensagem de boas-vindas e descrição do projeto
 st.header("Bem-vindo(a) à plataforma central de gestão de ativos.")
 st.write("""
 Esta aplicação foi desenvolvida para centralizar e analisar os dados de equipamentos analíticos, 
@@ -42,7 +82,6 @@ st.info("Selecione uma página na barra lateral à esquerda para começar a nave
 
 st.subheader("Funcionalidades Disponíveis:")
 
-# Usando colunas para descrever as funcionalidades de forma organizada
 col1, col2 = st.columns(2)
 
 with col1:
@@ -69,15 +108,12 @@ with col2:
 
 st.markdown("---")
 
-# ... (todo o código da sua página de início) ...
-
+# Botão de Recarregar Dados na barra lateral
 st.sidebar.markdown("---")
 if st.sidebar.button("🔄 Recarregar Dados"):
-    # Limpa o cache de todas as funções que usam @st.cache_data
     st.cache_data.clear()
     st.toast("Dados recarregados com sucesso!", icon="✅")
-    # O st.rerun() é opcional, mas força a página a recarregar imediatamente
     st.rerun()
 
-st.caption("Desenvolvido por 🧙‍♂️ Fabio Sena 🧙‍♂️ | Versão 1.1")
+st.caption("Desenvolvido por 🧙‍♂️ Fabio Sena 🧙‍♂️ | Versão 1.2") # Sugestão: atualizar a versão
 

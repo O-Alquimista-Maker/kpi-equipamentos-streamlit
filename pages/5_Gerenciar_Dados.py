@@ -8,6 +8,14 @@ from database.database_manager import (
 import datetime
 import pandas as pd
 
+# ==============================================================================
+# --- VERIFICADOR DE AUTENTICAÇÃO (ADICIONAR EM TODAS AS PÁGINAS) ---
+# ==============================================================================
+if st.session_state.get("password_correct", False) == False:
+    st.error("Você não tem permissão para acessar esta página. Por favor, faça o login.")
+    st.stop()
+# ==============================================================================
+
 # --- Configuração da Página ---
 st.set_page_config(page_title="Gerenciar Dados", page_icon="🗃️", layout="wide")
 st.title("🗃️ Gerenciar Dados")
@@ -31,7 +39,7 @@ def dialog_edit_equipamento(item_data):
         new_inicio_g = st.date_input("Início da Garantia", value=pd.to_datetime(item_data['inicio_garantia']).date() if pd.notna(item_data['inicio_garantia']) else None)
         new_fim_g = st.date_input("Fim da Garantia", value=pd.to_datetime(item_data['fim_garantia']).date() if pd.notna(item_data['fim_garantia']) else None)
 
-        if st.form_submit_button("✔️ Salvar Alterações", use_container_width=True):
+        if st.form_submit_button("✔️ Salvar Alterações", width='stretch'):
             try:
                 success = atualizar_equipamento(
                     equipamento_id=int(item_data['id']), numero_serie=new_numero_serie, descricao=new_descricao,
@@ -69,7 +77,7 @@ def dialog_edit_manutencao(item_data):
         new_motivo = st.text_area("Motivo/Descrição", value=item_data['motivo_manutencao'])
         new_custo = st.number_input("Custo da Manutenção (R$)", value=float(item_data['custo_manutencao']), format="%.2f")
 
-        if st.form_submit_button("✔️ Salvar Alterações", use_container_width=True):
+        if st.form_submit_button("✔️ Salvar Alterações", width='stretch'):
             try:
                 # CORRIGIDO: Chamada da função com argumentos nomeados e corretos
                 success = atualizar_manutencao(
@@ -96,7 +104,7 @@ def confirm_delete_dialog(item_type, item_id, item_desc):
     
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("Sim, excluir", type="primary", use_container_width=True):
+        if st.button("Sim, excluir", type="primary", width='stretch'):
             if item_type == "equipamento":
                 excluir_equipamento(item_id)
             elif item_type == "manutenção":
@@ -104,7 +112,7 @@ def confirm_delete_dialog(item_type, item_id, item_desc):
             st.session_state.confirming_delete = None
             st.rerun()
     with col2:
-        if st.button("Cancelar", use_container_width=True):
+        if st.button("Cancelar", width='stretch'):
             st.session_state.confirming_delete = None
             st.rerun()
 
@@ -138,12 +146,12 @@ with tab1:
             with col1:
                 st.write(f"**{row['descricao']}** (S/N: {row['numero_serie']}) - Sistema: {row['sistema_alocado']}")
             with col2:
-                if st.button("✏️ Editar", key=f"edit_equip_{row['id']}", use_container_width=True):
+                if st.button("✏️ Editar", key=f"edit_equip_{row['id']}", width='stretch'):
                     st.session_state.editing_item_id = row['id']
                     st.session_state.editing_item_type = 'equipamento'
                     st.rerun()
             with col3:
-                if st.button("🗑️ Excluir", key=f"del_equip_{row['id']}", use_container_width=True):
+                if st.button("🗑️ Excluir", key=f"del_equip_{row['id']}", width='stretch'):
                     st.session_state.confirming_delete = {
                         'type': 'equipamento', 'id': row['id'], 'desc': row['descricao']
                     }
@@ -163,12 +171,12 @@ with tab2:
             with col1:
                 st.write(f"**{row['equipamento_descricao']}** - Data: {pd.to_datetime(row['data_manutencao']).strftime('%d/%m/%Y')} - Custo: R$ {row['custo_manutencao']:.2f}")
             with col2:
-                if st.button("✏️ Editar", key=f"edit_manut_{row['id']}", use_container_width=True):
+                if st.button("✏️ Editar", key=f"edit_manut_{row['id']}", width='stretch'):
                     st.session_state.editing_item_id = row['id']
                     st.session_state.editing_item_type = 'manutencao'
                     st.rerun()
             with col3:
-                if st.button("🗑️ Excluir", key=f"del_manut_{row['id']}", use_container_width=True):
+                if st.button("🗑️ Excluir", key=f"del_manut_{row['id']}", width='stretch'):
                     st.session_state.confirming_delete = {
                         'type': 'manutenção', 'id': row['id'], 'desc': f"Manutenção de {row['equipamento_descricao']} em {pd.to_datetime(row['data_manutencao']).strftime('%d/%m/%Y')}"
                     }
